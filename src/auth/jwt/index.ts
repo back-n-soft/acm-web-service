@@ -14,13 +14,13 @@ const common = {
     accessToken: {
         privateKey: ENV.ACCESS_TOKEN_SECRET!,
         signOptions: {
-            expiresIn: ENV.TOKEN_EXPIRATION
+            expiresIn: ENV.ACCESS_TOKEN_EXPIRATION
         }
     },
     refreshToken: {
         privateKey: ENV.REFRESH_TOKEN_SECRET!,
         signOptions: {
-            expiresIn: '7d'
+            expiresIn: ENV.REFRESH_TOKEN_EXPIRATION
         }
     }
     ,

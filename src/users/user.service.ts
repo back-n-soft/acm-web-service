@@ -14,7 +14,7 @@ export class UserService {
         private readonly userRepository: Repository<User>) {
     }
 
-    async createUser(data: UserDto): Promise<User> {
+    async create(data: UserDto): Promise<User> {
         const user = await this.getByEmail(data.email);
         if (user) {
             throw new NotAcceptableException(

@@ -1,5 +1,4 @@
 import {Field, InputType, ObjectType} from "@nestjs/graphql";
-import {UserDto} from "./user.dto";
 
 @InputType()
 export class LoginUser {
@@ -10,6 +9,7 @@ export class LoginUser {
 @ObjectType()
 export class LoginResponse {
     @Field() accessToken: string;
-    @Field() refreshToken: string;
-    @Field() currentUser: UserDto;
+    @Field() refreshToken?: string;
+    @Field() accessTokenExpiresAt: string;
+    @Field() refreshTokenExpiresAt?: string;
 }

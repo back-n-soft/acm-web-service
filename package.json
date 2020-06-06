@@ -51,7 +51,8 @@
     "rxjs": "6.5.5",
     "tslint-config-airbnb": "^5.11.2",
     "type-graphql": "^1.0.0-rc.2",
-    "typeorm": "^0.2.25"
+    "typeorm": "^0.2.25",
+    "uuid": "8.1.0"
   },
   "devDependencies": {
     "@nestjs/cli": "7.1.5",

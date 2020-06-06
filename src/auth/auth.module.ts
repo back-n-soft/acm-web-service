@@ -6,9 +6,13 @@ import {ENV} from "../shared/config/env.config";
 import {JwtStrategy} from "./jwt.strategy";
 import {GraphqlAuthGuard} from "./graphql-auth.guard";
 import {AuthResolver} from './auth.resolver';
+import {AuthService} from "./auth.service";
+import {TypeOrmModule} from "@nestjs/typeorm";
+import {AuthEntity} from "./auth.entity";
 
 @Module({
     imports: [
+        TypeOrmModule.forFeature([AuthEntity]),
         PassportModule.register({
             defaultStrategy: 'jwt'
         }),
@@ -17,8 +21,8 @@ import {AuthResolver} from './auth.resolver';
         }),
         UserModule
     ],
-    providers: [JwtStrategy, AuthResolver, GraphqlAuthGuard],
-    exports: []
+    providers: [JwtStrategy, AuthResolver, GraphqlAuthGuard, AuthService],
+    exports: [AuthService]
 })
 export class AuthModule {
 }

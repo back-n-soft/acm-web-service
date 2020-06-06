@@ -1,5 +1,4 @@
 import {Module} from '@nestjs/common';
-import {Request, Response} from "express";
 import {GraphQLModule} from '@nestjs/graphql';
 import {UserModule} from "./users/user.module";
 import {TypeOrmModule} from "@nestjs/typeorm";
@@ -12,7 +11,7 @@ import {AuthModule} from './auth/auth.module';
     imports: [
         GraphQLModule.forRoot({
             autoSchemaFile: 'schema.gql',
-            context:  ({ req }) => ({ req })
+            context: ({req}) => ({req})
         }),
         TypeOrmModule.forRoot({
             type: ENV.DATABASE_TYPE as any,
@@ -25,7 +24,7 @@ import {AuthModule} from './auth/auth.module';
             dropSchema: false,
             logging: true,
             entities: [
-                'dist/**/*.entity.*',
+                'dist/**/**.entity.*',
             ],
             autoLoadEntities: true,
         }),

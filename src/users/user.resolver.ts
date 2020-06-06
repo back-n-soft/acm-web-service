@@ -8,21 +8,22 @@ import {UseGuards} from "@nestjs/common";
 import {GraphqlAuthGuard} from "../auth/graphql-auth.guard";
 import {CurrentUser} from "../shared/utils/decorator/user.decorator";
 import {RolesGuard} from "../shared/utils/guards/roles.guard";
+import {Public} from "../shared/utils/decorator/public.decorator";
 
 @UseGuards(GraphqlAuthGuard, RolesGuard)
 @Resolver(of => User)
 export class UserResolver {
 
-    constructor(private readonly userService: UserService) {
-    }
+    constructor(private readonly userService: UserService) {}
 
     @Query(() => UserDto)
     @HasRoles(Roles.ADMIN, Roles.USER)
-    async getUser(@Args('id', {type: () => Int})id: number, @CurrentUser() user: UserDto) {
-        console.log(user);
+    async getUser(@Args('id',{type: () => Int})id: number, @CurrentUser() user: UserDto) {
+        // console.log(user);
         return this.userService.get(id);
     }
 
+    @Public()
     @Query(() => [UserDto])
     async getAllUsers(@CurrentUser() user: UserDto) {
         console.log(user);
@@ -38,5 +39,4 @@ export class UserResolver {
     async deleteUser(@Args('id', {type: () => Int})id: number) {
         return this.userService.remove(id);
     }
-
 }
