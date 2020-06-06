@@ -3,7 +3,7 @@ import {User} from "./entity/user.entity";
 import {UserDto} from "./dto/user.dto";
 import {InjectRepository} from "@nestjs/typeorm";
 import {DeleteResult, Repository} from "typeorm";
-import { createHmac } from "crypto";
+import {createHmac} from "crypto";
 
 @Injectable()
 export class UserService {
@@ -46,12 +46,16 @@ export class UserService {
             .getOne();
     }
 
-    async getByCredentials(email: string, passHash: string){
+    async getByCredentials(email: string, passHash: string) {
         return await this.userRepository.createQueryBuilder('users')
             .where('users.email = :email and users.password = :password')
             .setParameter('email', email)
             .setParameter('password', passHash)
             .getOne();
+    }
+
+    async update(user: User): Promise<User> {
+        return await this.userRepository.save(user);
     }
 
     async getAllUsers(): Promise<User[]> {

@@ -4,7 +4,7 @@ import {DeleteResult, FindConditions, Repository} from "typeorm";
 import {UserService} from "../users/user.service";
 import {ILoginFields} from "./interfaces/login";
 import {IAuthResponse} from "./interfaces/auth";
-import {UnauthorizedException} from "@nestjs/common";
+import {NotFoundException, UnauthorizedException} from "@nestjs/common";
 import {User} from "../users/entity/user.entity";
 import {v4} from "uuid";
 import {ENV} from "../shared/config/env.config";
@@ -28,7 +28,7 @@ export class AuthService {
     async refresh(where: FindConditions<AuthEntity>): Promise<IAuthResponse> {
         const authEntity = await this.authRepository.findOne({where, relations: ["user"]});
 
-        if (!authEntity || authEntity.refreshTokenExpiresAt > new Date().getTime()) {
+        if (!authEntity || authEntity.accessTokenExpiresAt > new Date().getTime()) {
             throw new UnauthorizedException('refresh token is not valid');
         }
         return this.loginUser(authEntity.user);
@@ -41,9 +41,19 @@ export class AuthService {
     async loginUser(user: User): Promise<IAuthResponse> {
         const refreshToken = v4();
         const date = new Date();
+        const loggedInAuth = await this.authRepository.findOne({relations: ["user"]});
+        if (loggedInAuth) {
+            return {
+                accessToken: await generateToken(user, 'accessToken'),
+                refreshToken: loggedInAuth.refreshToken,
+                accessTokenExpiresAt: loggedInAuth.accessTokenExpiresAt,
+                refreshTokenExpiresAt: loggedInAuth.refreshTokenExpiresAt,
+            }
+        }
 
         const atea: number = date.getTime() + parseInt(String(ENV.ACCESS_TOKEN_EXPIRATION));
         const rtea: number = date.getTime() + parseInt(String(ENV.REFRESH_TOKEN_EXPIRATION));
+
         await this.authRepository.save(
             this.authRepository.create({
                 user,
@@ -58,8 +68,15 @@ export class AuthService {
             accessTokenExpiresAt: date.getTime() + (ENV.ACCESS_TOKEN_EXPIRATION as number),
             refreshTokenExpiresAt: date.getTime() + (ENV.REFRESH_TOKEN_EXPIRATION as number),
         }
-
     }
 
-
+    async changePassword(id: number, password: string) {
+        let user = await this.userService.get(id);
+        if (!user) {
+            throw new NotFoundException('could not find user with given id');
+        }
+        user.password = password;
+        user = await user.save();
+        return !!user;
+    }
 }

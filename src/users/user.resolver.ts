@@ -19,14 +19,12 @@ export class UserResolver {
     @Query(() => UserDto)
     @HasRoles(Roles.ADMIN, Roles.USER)
     async getUser(@Args('id',{type: () => Int})id: number, @CurrentUser() user: UserDto) {
-        // console.log(user);
         return this.userService.get(id);
     }
 
     @Public()
     @Query(() => [UserDto])
     async getAllUsers(@CurrentUser() user: UserDto) {
-        console.log(user);
         return this.userService.getAllUsers();
     }
 
