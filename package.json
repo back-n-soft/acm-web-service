@@ -33,7 +33,7 @@
     "@nestjsx/crud": "^4.6.2",
     "@types/express-session": "^1.17.0",
     "apollo-server": "2.13.1",
-    "apollo-server-express": "2.13.1",
+    "apollo-server-express": "2.14.2",
     "bcryptjs": "^2.4.3",
     "class-transformer": "^0.2.3",
     "class-validator": "^0.12.2",
