@@ -33,7 +33,8 @@ export class UserResolver {
         return this.userService.getByEmail(user?.email);
     }
 
-    @Mutation(() => UserDto)
+    @Public()
+    @Mutation(() => Boolean)
     async deleteUser(@Args('id', {type: () => Int})id: number) {
         return this.userService.remove(id);
     }

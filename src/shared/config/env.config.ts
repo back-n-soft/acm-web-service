@@ -15,5 +15,15 @@ export const ENV = {
     ACCESS_TOKEN_EXPIRATION: process.env.ACCESS_TOKEN_EXPIRATION || 3000000,
     REFRESH_TOKEN_EXPIRATION: process.env.REFRESH_TOKEN_EXPIRATION || 2592000000,
     REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
+    EMAIL_TOKEN_SECRET: process.env.EMAIL_TOKEN_SECRET,
     RESETPASS_TOKEN_SECRET: process.env.RESETPASS_TOKEN_SECRET,
+    URL: process.env.URL,
+    EMAIL_SERVER: process.env.EMAIL_SERVER,
+    SMTP: {
+        HOST: process.env.SMTP_HOST,
+        PORT: process.env.SMTP_PORT,
+        SSL: process.env.SMTP_SSL,
+        USER: process.env.SMTP_USER,
+        PASS: process.env.SMTP_PASS,
+    }
 }

@@ -8,6 +8,7 @@ import {getRepository} from "typeorm";
 type TokenType =
     | 'accessToken'
     | 'refreshToken'
+    | 'emailToken'
     | 'resetPasswordToken'
 
 const common = {
@@ -21,6 +22,12 @@ const common = {
         privateKey: ENV.REFRESH_TOKEN_SECRET!,
         signOptions: {
             expiresIn: ENV.REFRESH_TOKEN_EXPIRATION
+        }
+    },
+    emailToken: {
+        privateKey: ENV.EMAIL_TOKEN_SECRET!,
+        signOptions: {
+            expiresIn: '1d' // 1d
         }
     }
     ,

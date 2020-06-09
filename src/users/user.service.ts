@@ -1,17 +1,20 @@
-import {Injectable, NotAcceptableException} from "@nestjs/common";
+import {Injectable, Logger, NotAcceptableException, NotFoundException} from "@nestjs/common";
 import {User} from "./entity/user.entity";
 import {UserDto} from "./dto/user.dto";
 import {InjectRepository} from "@nestjs/typeorm";
-import {DeleteResult, Repository} from "typeorm";
+import {Repository} from "typeorm";
 import {createHmac} from "crypto";
+import {TmpUser} from "./Tmp-user.entity";
+import {verifyToken} from "../auth/jwt";
 
 @Injectable()
 export class UserService {
 
-
     constructor(
         @InjectRepository(User)
-        private readonly userRepository: Repository<User>) {
+        private readonly userRepository: Repository<User>,
+        @InjectRepository(TmpUser)
+        private readonly tmpUserRepository: Repository<TmpUser>) {
     }
 
     async create(data: UserDto): Promise<User> {
@@ -28,6 +31,15 @@ export class UserService {
 
     async get(id: number) {
         return await this.userRepository.findOne(id);
+    }
+
+    async findByConfirmationId(uuid: string): Promise<User> {
+        const user  = verifyToken(uuid,"emailToken");
+        Logger.debug(user);
+        const result = await this.tmpUserRepository.findOne({uuid: uuid}, {relations: ['user']});
+        if (!result?.user) throw new NotFoundException(`No temporary user with uuid: "${uuid}" found!`);
+        await this.tmpUserRepository.delete({uuid: uuid});
+        return result.user;
     }
 
     async getByEmail(email: string) {
@@ -62,13 +74,33 @@ export class UserService {
         return await this.userRepository.find();
     }
 
-    async remove(id: number): Promise<DeleteResult> {
+    async remove(id: number): Promise<Boolean> {
         let user = await this.userRepository.findOne(id);
-        if (!user) {
-            return await this.userRepository.delete({id: id});
+        let tmpUser = await this.tmpUserRepository.findOne({user: user});
+        if (tmpUser) {
+            await this.tmpUserRepository.delete({user: user});
+        }
+        if (user) {
+            await this.userRepository.delete({id: id});
+            return true;
         }
         throw new NotAcceptableException(
             'The user specified does not exist.',
         );
+    }
+
+    async confirmUser(user: User): Promise<User> {
+        const createdUser = await this.userRepository.create(user);
+        createdUser.isVerified = true;
+        return await createdUser.save();
+    }
+
+    async addTmpUser(id: string, user: User): Promise<any> {
+        const tmpuser = this.tmpUserRepository.create({
+            uuid: id,
+            user: user,
+            createdAt: new Date(Date.now()).toString()
+        });
+        return tmpuser.save();
     }
 }

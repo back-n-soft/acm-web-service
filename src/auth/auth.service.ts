@@ -4,11 +4,14 @@ import {DeleteResult, FindConditions, Repository} from "typeorm";
 import {UserService} from "../users/user.service";
 import {ILoginFields} from "./interfaces/login";
 import {IAuthResponse} from "./interfaces/auth";
-import {NotFoundException, UnauthorizedException} from "@nestjs/common";
+import {NotAcceptableException, NotFoundException, UnauthorizedException} from "@nestjs/common";
 import {User} from "../users/entity/user.entity";
 import {v4} from "uuid";
 import {ENV} from "../shared/config/env.config";
 import {generateToken} from "./jwt";
+import {MailerService} from "./email/mailer.service";
+import {UserInput} from "../users/input/user.input";
+import {sendEmail} from "../shared/mail";
 
 
 export class AuthService {
@@ -78,5 +81,21 @@ export class AuthService {
         user.password = password;
         user = await user.save();
         return !!user;
+    }
+
+    async signup(data: UserInput, req: any): Promise<any> {
+        const user = await this.userService.getByEmail(data.email);
+        if (user) {
+            throw new NotAcceptableException(
+                'A user with the provided email already exists.',
+            );
+        } else {
+            const createdUser = await this.userService.create(data);
+            const emailToken = await generateToken(createdUser, 'emailToken')
+            await this.userService.addTmpUser(emailToken, createdUser);
+            await sendEmail('verifyEmail', createdUser, req, emailToken);
+            return createdUser;
+        }
+
     }
 }

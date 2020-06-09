@@ -32,6 +32,9 @@ export class User extends BaseEntity {
     @Column({nullable: true,})
     country?: string;
 
+    @Column({type: "boolean", nullable: true, default: false})
+    isVerified?: boolean;
+
     @Column({nullable: true})
     phoneNumber?: string;
 
